@@ -4,13 +4,11 @@ import {
   APIGatewayProxyResult,
   APIGatewayProxyHandler
 } from "aws-lambda";
-import { getUserId } from "../../helpers/authHelper";
 import { TodoDataLayer } from "../../dataLayer/TodoDataLayer";
-import { S3Helper } from "../../helpers/s3Helper";
-import { ApiResponseHelper } from "../../helpers/apiResponseHelper";
+import { S3Helper } from "../../utils/s3Helper";
+import { successResponse, getUserId } from "../../utils/utils";
 
 const s3Helper = new S3Helper();
-const apiResponseHelper = new ApiResponseHelper();
 
 export const handler: APIGatewayProxyHandler = async (
   event: APIGatewayProxyEvent
@@ -23,5 +21,5 @@ export const handler: APIGatewayProxyHandler = async (
     record.attachmentUrl = await s3Helper.getTodoAttachmentUrl(record.todoId);
   }
 
-  return apiResponseHelper.generateDataSuccessResponse(200, "items", result);
+  return successResponse(200, "items", result);
 };

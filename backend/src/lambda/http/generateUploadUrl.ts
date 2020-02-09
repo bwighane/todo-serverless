@@ -4,14 +4,16 @@ import {
   APIGatewayProxyResult,
   APIGatewayProxyHandler
 } from "aws-lambda";
-import { S3Helper } from "../../helpers/s3Helper";
-import { ApiResponseHelper } from "../../helpers/apiResponseHelper";
+import { S3Helper } from "../../utils/s3Helper";
 import { TodoDataLayer } from "../../dataLayer/TodoDataLayer";
-import { getUserId } from "../../helpers/authHelper";
 import { createLogger } from "../../utils/logger";
+import {
+  errorResponse,
+  successResponse,
+  getUserId
+} from "../../utils/utils";
 
 const todosAccess = new TodoDataLayer();
-const apiResponseHelper = new ApiResponseHelper();
 const logger = createLogger("todos");
 
 export const handler: APIGatewayProxyHandler = async (
@@ -26,19 +28,19 @@ export const handler: APIGatewayProxyHandler = async (
     logger.error(
       `user ${userId} requesting put url for non exists todo with id ${todoId}`
     );
-    return apiResponseHelper.generateErrorResponse(400, "TODO not exists");
+    return errorResponse(400, "TODO not exists");
   }
 
   if (item.Items[0].userId !== userId) {
     logger.error(
       `user ${userId} requesting put url todo does not belong to his account with id ${todoId}`
     );
-    return apiResponseHelper.generateErrorResponse(
+    return errorResponse(
       400,
       "TODO does not belong to authorized user"
     );
   }
 
   const url = new S3Helper().getPresignedUrl(todoId);
-  return apiResponseHelper.generateDataSuccessResponse(200, "uploadUrl", url);
+  return successResponse(200, "uploadUrl", url);
 };

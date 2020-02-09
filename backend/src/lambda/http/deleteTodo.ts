@@ -4,13 +4,15 @@ import {
   APIGatewayProxyResult,
   APIGatewayProxyHandler
 } from "aws-lambda";
-import { getUserId } from "../../helpers/authHelper";
 import { TodoDataLayer } from "../../dataLayer/TodoDataLayer";
-import { ApiResponseHelper } from "../../helpers/apiResponseHelper";
 import { createLogger } from "../../utils/logger";
+import {
+  errorResponse,
+  errorSuccessResponse,
+  getUserId
+} from "../../utils/utils";
 
 const todosAccess = new TodoDataLayer();
-const apiResponseHelper = new ApiResponseHelper();
 const logger = createLogger("todos");
 
 export const handler: APIGatewayProxyHandler = async (
@@ -19,7 +21,7 @@ export const handler: APIGatewayProxyHandler = async (
   const todoId = event.pathParameters.todoId;
   if (!todoId) {
     logger.error("invalid delete attempt without todo id");
-    return apiResponseHelper.generateErrorResponse(400, "invalid parameters");
+    return errorResponse(400, "invalid parameters");
   }
 
   const authHeader = event.headers["Authorization"];
@@ -30,14 +32,14 @@ export const handler: APIGatewayProxyHandler = async (
     logger.error(
       `user ${userId} requesting delete for non exists todo with id ${todoId}`
     );
-    return apiResponseHelper.generateErrorResponse(400, "TODO not exists");
+    return errorResponse(400, "TODO not exists");
   }
 
   if (item.Items[0].userId !== userId) {
     logger.error(
       `user ${userId} requesting delete todo does not belong to his account with id ${todoId}`
     );
-    return apiResponseHelper.generateErrorResponse(
+    return errorResponse(
       400,
       "TODO does not belong to authorized user"
     );
@@ -45,5 +47,5 @@ export const handler: APIGatewayProxyHandler = async (
 
   logger.info(`User ${userId} deleting todo ${todoId}`);
   await todosAccess.deleteTodoById(todoId);
-  return apiResponseHelper.generateEmptySuccessResponse(204);
+  return errorSuccessResponse(204);
 };

@@ -6,9 +6,8 @@ import {
   APIGatewayProxyResult
 } from "aws-lambda";
 import { CreateTodoRequest } from "../../requests/createTodoRequest";
-import { getUserId } from "../../helpers/authHelper";
 import { TodoDataLayer } from "../../dataLayer/TodoDataLayer";
-import { ApiResponseHelper } from "../../helpers/apiResponseHelper";
+import { successResponse, getUserId } from "../../utils/utils";
 
 export const handler: APIGatewayProxyHandler = async (
   event: APIGatewayProxyEvent
@@ -19,5 +18,5 @@ export const handler: APIGatewayProxyHandler = async (
   const userId = getUserId(authHeader);
   const item = await new TodoDataLayer().createTodo(newTodo, userId);
 
-  return new ApiResponseHelper().generateDataSuccessResponse(201, "item", item);
+  return successResponse(201, "item", item);
 };
