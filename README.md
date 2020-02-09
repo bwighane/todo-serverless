@@ -1,31 +1,15 @@
-# Udacity ToDos Serverless project
+#Configurations
 
-## Project Components
-- Restful API (Lambda Functions, API Gateway and DynamoDb)
-- Client (React)
+```
+const apiId = 'v642efyq74'
+export const apiEndpoint = `https://${apiId}.execute-api.us-east-1.amazonaws.com/dev`
 
-## How to run the application
-### Backend
-To deploy an application run the following commands:
+export const authConfig = {
+  domain: 'dev-efb0g3wt.auth0.com', // Auth0 domaine
+  clientId: 'SZvp5ZPleeCObO1EefWcx2FvgsSFinJn', // Auth0 client id
+  callbackUrl: 'http://localhost:3000/callback'
+}
+```
+#API Endpoint
 
-```bash
-cd backend
-npm install
-sls deploy -v
-````
-### Frontend
-```bash
-cd client
-npm install
-npm run start
-```
-
-## Deplyment details
-API Endpoint
-```
-https://e2mg7iqieb.execute-api.us-east-1.amazonaws.com/dev/todos
-```
-Postman Collection
-```
-Udacity C4 Project.postman_collection.json
-```
+https://v642efyq74.execute-api.us-east-1.amazonaws.com/dev
