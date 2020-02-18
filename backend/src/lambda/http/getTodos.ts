@@ -4,7 +4,7 @@ import {
   APIGatewayProxyResult,
   APIGatewayProxyHandler
 } from "aws-lambda";
-import { TodoDataLayer } from "../../dataLayer/TodoDataLayer";
+import { getUserTodos } from "../../businessLogic/todos";
 import { S3Helper } from "../../utils/s3Helper";
 import { successResponse, getUserId } from "../../utils/utils";
 
@@ -15,7 +15,7 @@ export const handler: APIGatewayProxyHandler = async (
 ): Promise<APIGatewayProxyResult> => {
   const authHeader = event.headers["Authorization"];
   const userId = getUserId(authHeader);
-  const result = await new TodoDataLayer().getUserTodos(userId);
+  const result = await getUserTodos(userId);
 
   for (const record of result) {
     record.attachmentUrl = await s3Helper.getTodoAttachmentUrl(record.todoId);

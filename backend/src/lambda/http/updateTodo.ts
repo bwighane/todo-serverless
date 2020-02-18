@@ -5,16 +5,12 @@ import {
   APIGatewayProxyResult
 } from "aws-lambda";
 import { UpdateTodoRequest } from "../../requests/UpdateTodoRequest";
-import { TodoDataLayer } from "../../dataLayer/TodoDataLayer";
-import { createLogger } from "../../utils/logger";
 import {
-  errorResponse,
   errorSuccessResponse,
   getUserId
 } from "../../utils/utils";
 
-const logger = createLogger("todos");
-const todosAccess = new TodoDataLayer();
+import { updateTodo } from "../../businessLogic/todos";
 
 export const handler: APIGatewayProxyHandler = async (
   event: APIGatewayProxyEvent
@@ -24,26 +20,7 @@ export const handler: APIGatewayProxyHandler = async (
   const authHeader = event.headers["Authorization"];
   const userId = getUserId(authHeader);
 
-  const item = await todosAccess.getTodoById(todoId);
+  await updateTodo(updatedTodo, todoId, userId);
 
-  if (item.Count == 0) {
-    logger.error(
-      `user ${userId} requesting update for non exists todo with id ${todoId}`
-    );
-    return errorResponse(400, "TODO not exists");
-  }
-
-  if (item.Items[0].userId !== userId) {
-    logger.error(
-      `user ${userId} requesting update todo does not belong to his account with id ${todoId}`
-    );
-    return errorResponse(
-      400,
-      "TODO does not belong to authorized user"
-    );
-  }
-
-  logger.info(`User ${userId} updating group ${todoId} to be ${updatedTodo}`);
-  await new TodoDataLayer().updateTodo(updatedTodo, todoId);
   return errorSuccessResponse(204);
 };

@@ -4,15 +4,14 @@ import {
   APIGatewayProxyResult,
   APIGatewayProxyHandler
 } from "aws-lambda";
-import { TodoDataLayer } from "../../dataLayer/TodoDataLayer";
 import { createLogger } from "../../utils/logger";
 import {
   errorResponse,
   errorSuccessResponse,
   getUserId
 } from "../../utils/utils";
+import { deleteTodo } from "../../businessLogic/todos";
 
-const todosAccess = new TodoDataLayer();
 const logger = createLogger("todos");
 
 export const handler: APIGatewayProxyHandler = async (
@@ -26,26 +25,7 @@ export const handler: APIGatewayProxyHandler = async (
 
   const authHeader = event.headers["Authorization"];
   const userId = getUserId(authHeader);
-
-  const item = await todosAccess.getTodoById(todoId);
-  if (item.Count == 0) {
-    logger.error(
-      `user ${userId} requesting delete for non exists todo with id ${todoId}`
-    );
-    return errorResponse(400, "TODO not exists");
-  }
-
-  if (item.Items[0].userId !== userId) {
-    logger.error(
-      `user ${userId} requesting delete todo does not belong to his account with id ${todoId}`
-    );
-    return errorResponse(
-      400,
-      "TODO does not belong to authorized user"
-    );
-  }
-
-  logger.info(`User ${userId} deleting todo ${todoId}`);
-  await todosAccess.deleteTodoById(todoId);
+  const response = await deleteTodo(todoId, userId);
+  if (response instanceof Object) return response;
   return errorSuccessResponse(204);
 };
